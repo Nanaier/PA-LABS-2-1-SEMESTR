@@ -112,6 +112,9 @@ def button_clicked():
     elif var.get() == 3:
         if len(e1.get()) > 0:
             if e1.get().isdigit():
+                e2.config(state=NORMAL)
+                e2.delete(0, "end")
+                e2.config(state=DISABLED)
                 key = int(e1.get())
                 if myTree.isInTheTree(treeRoot, key):
                     data = myTree.search(treeRoot, key)
