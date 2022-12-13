@@ -1,0 +1,8 @@
+67;student
+L60;pupil
+U
+R75;teacher
+L69;scholar
+U
+U
+U
