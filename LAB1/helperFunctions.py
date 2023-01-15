@@ -11,7 +11,8 @@ def inputSize():
     filename = str(input("Enter your filename: "))
     size = int(input("Enter the size in MB: "))
     amountOfAdditionalFiles = 8 + int(math.log2(size)) if math.log2(size) > 0 else 5
-    return filename, size, amountOfAdditionalFiles
+    sortType = str(input("Enter the sort type(o - for optimized version and n - for normal): "))
+    return filename, size, amountOfAdditionalFiles, sortType
 
 
 def writeToFile(currentList, file, appendNewline=False):

@@ -3,11 +3,11 @@ import math
 import time
 from helperFunctions import writeToFile
 import numpy as np
-from constants import path
+from constants import path, MB
 from os.path import exists
 
 
-def separatingByFiles(fileName, amountOfFiles):
+def separatingByFiles(fileName, amountOfFiles, size):
     try:
         os.remove("Result.txt")
     except FileNotFoundError:
@@ -15,15 +15,27 @@ def separatingByFiles(fileName, amountOfFiles):
     filesB = []
     for file in range(amountOfFiles):
         filesB.append(open(path + "B" +str(file) + ".txt", "w"))
-
     currentList = []
     currentIndex = 0
     currentFile = 0
 
-    initialFile = open(fileName, "r")
-    a = np.fromfile(initialFile, dtype=np.uint32)
-    initialFile.close()
+    byteSize = os.path.getsize(fileName)
+    amn = math.floor(byteSize/(10*MB))
+    left_amn = byteSize - (10*MB)*amn
+    
+    for i in range(0, amn):
+        a = np.fromfile(fileName, count=int(10 * MB / 4), offset=i*10*MB, dtype=np.uint32)
+        for number in a:
+            if currentIndex != 0 and currentList[currentIndex - 1] >= number:
+                writeToFile(currentList, filesB[currentFile % amountOfFiles])
+                currentFile += 1
+                currentIndex = 0
+                currentList.clear()
+            currentIndex += 1
+            currentList.append(number)
 
+    writeToFile(currentList, filesB[currentFile % amountOfFiles])
+    a = np.fromfile(fileName, count=int(left_amn/ 4), offset=amn*10*MB, dtype=np.uint32)
     for number in a:
         if currentIndex != 0 and currentList[currentIndex - 1] >= number:
             writeToFile(currentList, filesB[currentFile % amountOfFiles])
@@ -32,7 +44,6 @@ def separatingByFiles(fileName, amountOfFiles):
             currentList.clear()
         currentIndex += 1
         currentList.append(number)
-
     writeToFile(currentList, filesB[currentFile % amountOfFiles])
     for file in filesB:
         file.close()
@@ -70,7 +81,7 @@ def merge_files(fileNames):
             currentList.append(float('inf'))
             amountOfFilesAfterMerge -= 1
     while any(x > 1 for x in fileSizes):
-        while amountOfFilesAfterMerge > 0:
+        while amountOfFilesAfterMerge > 0 and len(currentList)<10000000:
             min_element = min(currentList)
             min_index = currentList.index(min_element)
             writeToFile(min_element, writeFiles[currentCFiles % amountOfFiles])
